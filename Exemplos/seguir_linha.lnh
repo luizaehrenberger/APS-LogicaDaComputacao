@@ -1,0 +1,11 @@
+// 01_seguir_linha.lnh
+while (dist() > 15) {
+  if (line_left() && !line_right()) {
+    turn_left(30);
+  } else if (line_right() && !line_left()) {
+    turn_right(30);
+  } else {
+    forward(40);
+  }
+}
+stop();

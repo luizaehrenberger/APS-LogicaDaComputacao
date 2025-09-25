@@ -1,0 +1,76 @@
+(*
+  Linguagem: LINHA — DSL para robô seguidor de linha (contexto simples)
+  Parcial #1: Especificação EBNF
+  Ideia: comandos de alto nível (mover/girar/parar) + estruturas básicas (variáveis, if/while, I/O simples)
+*)
+
+PROGRAM        = { STMT } ;
+
+(* statements *)
+STMT           = SIMPLE_STMT, ";" | COMPOUND_STMT ;
+SIMPLE_STMT    = ASSIGN | PRINT | DRIVE_STMT | EMPTY ;
+COMPOUND_STMT  = IF | WHILE | BLOCK ;
+EMPTY          = /* ε */ ;
+
+BLOCK          = "{", { STMT }, "}" ;
+
+ASSIGN         = IDENT, "=", EXPR ;
+PRINT          = "log", "(", EXPR, ")" ;
+
+(* Comandos do domínio (atuadores) *)
+DRIVE_STMT     = FORWARD | TURN_LEFT | TURN_RIGHT | STOP | SET_SPEED | SLEEP ;
+FORWARD        = "forward", "(", EXPR, ")" ;
+TURN_LEFT      = "turn_left", "(", EXPR, ")" ;
+TURN_RIGHT     = "turn_right", "(", EXPR, ")" ;
+STOP           = "stop", "(", ")" ;
+SET_SPEED      = "set_speed", "(", EXPR, ",", EXPR, ")" ;
+SLEEP          = "sleep", "(", EXPR, ")" ;
+
+IF             = "if", "(", EXPR, ")", ( STMT | BLOCK ),
+                 { "else", "if", "(", EXPR, ")", ( STMT | BLOCK ) },
+                 [ "else", ( STMT | BLOCK ) ] ;
+
+WHILE          = "while", "(", EXPR, ")", ( STMT | BLOCK ) ;
+
+(* expressões por precedência: OR < AND < REL < ADD < MUL < UN < PRIMARY *)
+EXPR           = OR ;
+OR             = AND, { "||", AND } ;
+AND            = REL, { "&&", REL } ;
+REL            = ADD, { ( "===" | ">" | "<" | ">=" | "<=" | "!=" ), ADD } ;
+ADD            = MUL, { ( "+" | "-" ), MUL } ;
+MUL            = UN,  { ( "*" | "/" | "%" ), UN } ;
+UN             = [ "+" | "-" | "!" ], UN | PRIMARY ;
+
+PRIMARY        = NUMBER
+               | IDENT
+               | SENSOR_CALL
+               | "true"
+               | "false"
+               | "(", EXPR, ")" ;
+
+(* Sensores (funções read-only que retornam inteiros) *)
+SENSOR_CALL    = LINE_LEFT | LINE_RIGHT | DIST ;
+LINE_LEFT      = "line_left", "(", ")" ;   (* 1 se sensor esquerdo vê a linha; 0 caso contrário *)
+LINE_RIGHT     = "line_right", "(", ")" ;  (* 1 se sensor direito vê a linha; 0 caso contrário *)
+DIST           = "dist", "(", ")" ;        (* distância frontal em cm *)
+
+(* Léxico *)
+IDENT          = LETTER, { LETTER | DIGIT | "_" } ;
+NUMBER         = DIGIT, { DIGIT } ;
+
+LETTER         = "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H" | "I" | "J"
+               | "K" | "L" | "M" | "N" | "O" | "P" | "Q" | "R" | "S" | "T"
+               | "U" | "V" | "W" | "X" | "Y" | "Z"
+               | "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j"
+               | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t"
+               | "u" | "v" | "w" | "x" | "y" | "z" ;
+
+DIGIT          = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+
+(* Comentários para implementação no lexer:
+   - Espaços/brancos ignorados fora de strings/comentários.
+   - Comentários: // até o fim da linha.
+   - Palavras-chave: if else while log forward turn_left turn_right stop set_speed sleep true false
+   - Operadores: + - * / % === != > < >= <= && || !
+   - Pontuação: ( ) { } ; = , 
+*)

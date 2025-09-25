@@ -1,0 +1,12 @@
+// 03_calibracao.lnh
+base = 30;
+ganho = 10;
+while (true) {
+  if (line_left() && !line_right()) {
+    set_speed(base - ganho, base + ganho);
+  } else if (line_right() && !line_left()) {
+    set_speed(base + ganho, base - ganho);
+  } else {
+    set_speed(base, base);
+  }
+}

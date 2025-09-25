@@ -1,0 +1,11 @@
+// 02_evitar_obstaculo.lnh
+while (true) {
+  if (dist() < 10) {
+    stop();
+    sleep(300);
+    turn_right(35);
+    sleep(250);
+  } else {
+    forward(35);
+  }
+}

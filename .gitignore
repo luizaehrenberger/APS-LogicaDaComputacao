@@ -1,0 +1,21 @@
+# Compilação C/C++
+*.o
+*.out
+*.exe
+*.obj
+*.dll
+*.so
+*.dylib
+
+# Flex/Bison gerados
+lex.yy.c
+y.tab.c
+y.tab.h
+parser.tab.c
+parser.tab.h
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
